@@ -24,40 +24,21 @@
 			
 			
 
-			function setUp(maze){
 			
-		
-				for(var i=0; i<maze.length; i++){
-					for(var j=0; j<maze[0].length; j++){
-						if(maze[i][j]==3){
-							return [i,j];
-						}
-					}	
-				}
-			}
-
 
 			function traverse(maze,column, row) {
-		
+				
+				
 
 				if(maze[column][row] == 2) {
-					console.log("We solved the maze at (" + column + ", " + row + ")");
-					//console.log(maze);
+					this.solved = true;
 					
-				} else if(maze[column][row] == 1 || maze[column][row] == 3 ) {
-					
-					//console.log("At valid position (" + column + ", " + row + ")");
+					moveTo(column, row, maze[column][row]);				
+				} else if((maze[column][row] == 1 || maze[column][row] == 3 )&& this.solved==false) {
 					maze[column][row] = 9;
-					var dir = findDirection(lastCol, lastRow, column, row);
-					console.log("("+lastCol+", "+lastRow+") ===> ("+ column + ", " + row + ")"+dir+"\n");
-					if(dir!=-1){
-						this.directions.push(dir);
-					}
-					else{
-						console.log("Backtrack---|"+findBackwardPass(lastCol, lastRow, column, row, this.directions));
-					}
-					lastCol = column;
-					lastRow = row;
+					
+					moveTo(column, row, maze[column][row]);
+					
 					if(column < maze.length - 1) {
 						traverse(maze, column + 1, row);
 					}
@@ -71,6 +52,24 @@
 						traverse(maze, column, row - 1);
 					}
 				}
+			}
+			
+			function moveTo(column, row, field){
+				if(field==2) this.solved = true;
+				
+				var dir = findDirection(lastCol, lastRow, column, row);
+				if(dir!=-1){
+					this.directions.push(dir);
+					this.result.push(dir);
+				}
+				else{
+					var temp = findBackwardPass(lastCol, lastRow, column, row, this.directions);
+					for(var i = 0;i<temp.length;i++){
+						this.result.push(temp[i]);
+					}
+				}
+				this.lastCol = column;
+				this.lastRow = row;
 			}
 			
 			function findBackwardPass(curCol, curRow, targetCol, targetRow, d){
@@ -132,10 +131,23 @@
 				}
 			}
 			
+			function setUp(maze){
+				for(var i=0; i<maze.length; i++){
+					for(var j=0; j<maze[0].length; j++){
+						if(maze[i][j]==3){
+							return [i,j];
+						}
+					}	
+				}
+			}
+
+			
 			function MazeSolver(maze) {
 
 				this.maze = maze;
-				this.directions = [];
+				this.directions = [];//samo konacan put koji treba proci
+				this.result = [];//ukupan put sa svim vracanjima u nazad itd.
+				this.solved = false;
 				
 				var temp =setUp(maze);
 				
@@ -144,12 +156,10 @@
 				
 				this.lastCol = temp[0];//pretpostavljam da pocinjemo od leve ivice
 				this.lastRow = temp[1]-1;//pretpostavljam da pocinjemo od leve ivice
-				//console.log(maze);
-				//console.log(currentColumn);
-				//console.log(currentRow);
+				
 				traverse(maze,currentColumn,currentRow);
-				console.log(maze);
-				console.log(directions);
+				//console.log(result);
+				//umesto ovog console log treba proci i slati robotu uputstva
 
 			}
 
